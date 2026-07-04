@@ -8,17 +8,21 @@
       aria-label="Título da nota"
     />
 
-    <p v-if="note?.id" class="meta">
-      criada {{ formatDate(note.createdAt) }} · editada {{ formatDate(note.updatedAt) }}
-    </p>
+    <div class="meta-row">
+      <p v-if="note?.id" class="meta">
+        criada {{ formatDate(note.createdAt) }} · editada {{ formatDate(note.updatedAt) }}
+      </p>
+      <span class="spacer"></span>
+      <button class="btn-text" @click="rawMode = !rawMode" :title="rawMode ? 'Voltar ao texto vivo' : 'Ver o markdown cru'">
+        {{ rawMode ? '筆 vivo' : '素 cru' }}
+      </button>
+    </div>
 
-    <textarea
+    <MarkdownEditor
       v-model="content"
-      class="content"
+      :raw-mode="rawMode"
       placeholder="Escreva em markdown…"
-      aria-label="Conteúdo em markdown"
-      spellcheck="false"
-    ></textarea>
+    />
 
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -37,6 +41,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import MarkdownEditor from './MarkdownEditor.vue'
 
 const props = defineProps({
   note: { type: Object, default: null },
@@ -48,6 +53,7 @@ const emit = defineEmits(['save', 'delete'])
 const title = ref('')
 const content = ref('')
 const saved = ref(false)
+const rawMode = ref(false)
 
 watch(
   () => props.note,
@@ -102,32 +108,17 @@ function formatDate(iso) {
   border-bottom-color: var(--accent);
 }
 
+.meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+}
+
 .meta {
   font-family: var(--f-mono);
   font-size: var(--fs-small);
   color: var(--text-muted);
   margin: 0;
-}
-
-/* o markdown bruto, exatamente como será salvo — sempre mono */
-.content {
-  flex: 1;
-  font-family: var(--f-mono);
-  font-size: var(--fs-mono);
-  line-height: 1.8;
-  color: var(--text);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: var(--s4);
-  resize: none;
-  transition: border-color var(--dur-fast) var(--ease-ink);
-}
-
-.content:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--focus);
 }
 
 .error {

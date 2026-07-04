@@ -90,7 +90,8 @@
 **Telas (seguindo o `DESIGN.md` — rodar o checklist dele antes de entregar cada uma):**
 - [x] ⚡ Config de CORS / comunicação com `localhost:8080`
 - [x] ⚡ Tela de lista de notas (cartões) + editor de markdown (mono, `content` bruto)
-- [ ] ⚡ Preview do markdown renderizado
+- [x] ⚡ Preview do markdown renderizado — virou **live preview estilo Obsidian** (CodeMirror 6: doc é o cru intacto, formatação é decoração; linha do cursor revela as marcas) + toggle 素 cru
+- [ ] Permitir exportar markdown para ele
 - [ ] 👤 **Usar o app de verdade e aprovar a UX** — um só acento por tela, espaço (ma), tags como carimbos. Pedir ajustes até ficar com a minha cara.
 
 *(busca e backlinks/grafo migraram pras suas fases: 4 e 3)*
