@@ -43,6 +43,8 @@
 - [ ] ⚡ Derivar tags do `content` (extrair `#hashtags`) ao salvar — sem nunca alterar o bruto
 - [ ] ⚡ Recalcular tags quando o `content` muda
 - [ ] ⚡ Endpoint de listar notas por tag + listar todas as tags
+- [ ] ⚡ UI: selos hanko de tags nos cartões e na tela da nota (carimbos, não pílulas)
+- [ ] 👤 Testar no app: escrever `#tags` numa nota e ver os selos aparecerem
 
 **Meta:** tags como dado derivado, sempre em sincronia com o conteúdo.
 
@@ -55,6 +57,8 @@
 - [ ] ⚡ Recalcular links quando o `content` muda
 - [ ] ⚡ Endpoint de backlinks ("quais notas apontam pra esta?")
 - [ ] ⚡ Endpoint do grafo (nós + arestas) pro frontend desenhar
+- [ ] ⚡ UI: backlinks na tela da nota ("← N notas apontam para esta") + visualização do grafo
+- [ ] 👤 Testar no app: criar notas com `[[wikilinks]]` e navegar pelos backlinks/grafo
 
 **Meta:** notas conectadas, backlinks funcionando.
 
@@ -66,6 +70,8 @@
 - [ ] ⚡ Recalcular o índice quando o `content` muda
 - [ ] ⚡ Query de busca (nativa) com ranking de relevância
 - [ ] ⚡ Endpoint de busca com paginação
+- [ ] ⚡ UI: campo de busca cidadão de primeira classe (glifo `⌕`, resultados na lista)
+- [ ] 👤 Testar no app: buscar entre várias notas e sentir a relevância
 
 **Meta:** busca rápida e relevante em todas as notas.
 
@@ -73,18 +79,21 @@
 
 ## FASE 5 — Frontend Electron + Vue
 
-**Design primeiro (a fundação visual):**
-- [ ] ⚡ Portar `tokens.css` pro `desktop/src/styles/` e importar uma vez, global
-- [ ] ⚡ Carregar as fontes (Shippori Mincho, Zen Kaku Gothic, JetBrains Mono)
-- [ ] ⚡ Implementar o toggle tinta↔papel (`data-theme` no root)
+> **Decisão (2026-07-04):** o frontend evolui **junto** com cada fase de backend — cada fase
+> tem seu item de UI e um 👤 de uso real. A FASE 5 guarda a fundação (feita) e o que sobrou.
+
+**Design primeiro (a fundação visual) — feito:**
+- [x] ⚡ Portar `tokens.css` pro `desktop/src/styles/` e importar uma vez, global
+- [x] ⚡ Carregar as fontes (Shippori Mincho, Zen Kaku Gothic, JetBrains Mono)
+- [x] ⚡ Implementar o toggle tinta↔papel (`data-theme` no root)
 
 **Telas (seguindo o `DESIGN.md` — rodar o checklist dele antes de entregar cada uma):**
-- [ ] ⚡ Config de CORS / comunicação com `localhost:8080`
-- [ ] ⚡ Tela de lista de notas (cartões) + editor de markdown (mono, `content` bruto)
+- [x] ⚡ Config de CORS / comunicação com `localhost:8080`
+- [x] ⚡ Tela de lista de notas (cartões) + editor de markdown (mono, `content` bruto)
 - [ ] ⚡ Preview do markdown renderizado
-- [ ] ⚡ Busca (campo cidadão de primeira classe)
-- [ ] ⚡ Backlinks na tela da nota + visualização do grafo
 - [ ] 👤 **Usar o app de verdade e aprovar a UX** — um só acento por tela, espaço (ma), tags como carimbos. Pedir ajustes até ficar com a minha cara.
+
+*(busca e backlinks/grafo migraram pras suas fases: 4 e 3)*
 
 **Meta:** o Commonplace Book utilizável, aprovado por mim, fiel ao `DESIGN.md`.
 
@@ -94,6 +103,7 @@
 
 - [ ] ⚡ Endpoint que pega o `content` de cada nota e escreve arquivos `.md` numa pasta
 - [ ] ⚡ Incluir frontmatter (tags, datas) reconstruído no topo de cada arquivo
+- [ ] ⚡ UI: ação "Exportar" discreta (`.btn-text`) na tela
 - [ ] 👤 Validar que os `.md` exportados abrem certo em outro app (Obsidian, etc.)
 
 **Meta:** liberdade total — minhas notas saem pra qualquer lugar quando eu quiser.

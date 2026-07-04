@@ -87,6 +87,12 @@ As checklists detalhadas estão no `tasks.md`.
 > **MVP rápido:** com o CC fazendo tudo, FASE 0–1 + uma tela simples é questão de dias.
 > Lançar simples e enriquecer > fazer tudo perfeito de primeira. O markdown-bruto-sagrado é o que permite isso.
 
+**Decisão (2026-07-04) — frontend acompanha cada fase.** A FASE 5 deixou de ser um bloco no
+fim: a primeira tela (lista + editor + tema) foi antecipada logo após a FASE 1, e daqui em diante
+**toda fase de backend entrega junto sua contraparte na UI** (tags → selos, links → backlinks/grafo,
+busca → campo). O porquê: sempre ter algo real pra usar e testar — o hábito de usar o app é o
+desafio real, e ele só se forma com o app vivo na mão.
+
 ---
 
 ## Design (resumo — detalhe em `DESIGN.md`)
