@@ -17,7 +17,7 @@
 - [x] ⚡ Escrever `start.sh` / `start.bat` (o "clica e sobe tudo")
 - [x] ⚡ `.gitignore` na raiz cobrindo `target/` e `node_modules/`
 - [x] ⚡ Validar que `docker-compose up` sobe API + banco limpo
-- [ ] 👤 Rodar o start script na minha máquina e confirmar que sobe
+- [x] 👤 Rodar o start script na minha máquina e confirmar que sobe
 
 **Meta:** um comando e tudo vivo.
 
@@ -25,12 +25,12 @@
 
 ## FASE 1 — CRUD de Notas (a fundação)
 
-- [ ] ⚡ Entidade `Note` (`id`, `title`, `content` bruto, `created_at`, `updated_at`)
-- [ ] ⚡ Migration Flyway da tabela `notes`
-- [ ] ⚡ `NoteRepository`, `NoteService`, `NoteController` — CRUD completo
-- [ ] ⚡ DTOs de entrada/saída (nunca expor a entidade direto)
-- [ ] ⚡ Bean Validation nos DTOs + tratamento de erros / respostas HTTP padronizadas
-- [ ] ⚡ Testar todos os endpoints (curl) e confirmar `content` preservado byte a byte no banco
+- [x] ⚡ Entidade `Note` (`id`, `title`, `content` bruto, `created_at`, `updated_at`)
+- [x] ⚡ Migration Flyway da tabela `notes`
+- [x] ⚡ `NoteRepository`, `NoteService`, `NoteController` — CRUD completo
+- [x] ⚡ DTOs de entrada/saída (nunca expor a entidade direto)
+- [x] ⚡ Bean Validation nos DTOs + tratamento de erros / respostas HTTP padronizadas
+- [x] ⚡ Testar todos os endpoints (curl) e confirmar `content` preservado byte a byte no banco
 
 **Meta:** CRUD funcionando, `content` intacto.
 
