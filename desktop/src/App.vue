@@ -10,6 +10,9 @@
 
       <button class="new-note btn-secondary" @click="startNew">Nova nota</button>
 
+      <ImportNotes @done="onImport" />
+
+      <p v-if="notice" class="notice">{{ notice }}</p>
       <p v-if="loadError" class="error">{{ loadError }}</p>
 
       <div class="cards">
@@ -43,6 +46,7 @@ import { useTheme } from './composables/useTheme.js'
 import NoteCard from './components/NoteCard.vue'
 import NoteEditor from './components/NoteEditor.vue'
 import EmptyState from './components/EmptyState.vue'
+import ImportNotes from './components/ImportNotes.vue'
 
 const { theme, toggle } = useTheme()
 const themeLabel = computed(() => (theme.value === 'ink' ? 'Trocar para papel' : 'Trocar para tinta'))
@@ -52,6 +56,26 @@ const selected = ref(null)      // null = nada aberto; { id: undefined } = rascu
 const editing = ref(false)
 const loadError = ref('')
 const editorError = ref('')
+const notice = ref('')
+let noticeTimer = null
+
+function flash(message) {
+  notice.value = message
+  clearTimeout(noticeTimer)
+  noticeTimer = setTimeout(() => (notice.value = ''), 4000)
+}
+
+async function onImport({ imported, failed }) {
+  if (imported > 0) {
+    const plural = imported === 1 ? 'nota importada' : 'notas importadas'
+    flash(`${imported} ${plural}${failed.length ? ` · ${failed.length} falharam` : ''}`)
+    await reload()
+  } else if (failed.length > 0) {
+    flash(`Nenhuma importada · ${failed.length} falharam`)
+  } else {
+    flash('Nenhum arquivo .md selecionado')
+  }
+}
 
 const showEmpty = computed(() => notes.value.length === 0 && !editing.value)
 
@@ -171,6 +195,13 @@ h1 {
   color: var(--text-muted);
   font-size: var(--fs-small);
   margin: 0;
+}
+
+.notice {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  margin: 0;
+  transition: opacity var(--dur-calm) var(--ease-ink);
 }
 
 .cards {
