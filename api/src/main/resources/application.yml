@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: commonplace-api
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/commonplace}
+    username: ${DB_USER:commonplace}
+    password: ${DB_PASSWORD:commonplace}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true

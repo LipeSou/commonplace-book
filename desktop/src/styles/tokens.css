@@ -1,0 +1,126 @@
+/* ============================================================================
+   tokens.css — Commonplace Book · Sistema de Design · FONTE ÚNICA DE VERDADE
+   ----------------------------------------------------------------------------
+   Onde mora: desktop/src/styles/tokens.css
+   Como usar: importar UMA vez, globalmente (ex.: no main.js ou no App.vue raiz):
+              import './styles/tokens.css'
+   Regra:     componentes usam SÓ tokens semânticos (--bg, --text, --accent...).
+              NUNCA cor crua (#hex) nem pigmento (--p-*) direto no componente.
+   Tema:      trocar tinta↔papel = setar data-theme no <html>:
+              document.documentElement.dataset.theme = 'ink' | 'paper'
+   ============================================================================ */
+
+/* ---- PIGMENTOS — paleta crua, constante (os nomes nunca mudam) ------------ */
+:root{
+  --p-sumi:  #1b1a17;   /* 墨 tinta   */
+  --p-washi: #ebe3d0;   /* 和紙 papel  */
+  --p-shu:   #b8412e;   /* 朱 carimbo — o ÚNICO acento vivo */
+  --p-ai:    #324a5e;   /* 藍 índigo — só links */
+  --p-kin:   #a8843c;   /* 金 ouro — raríssimo */
+  --p-hai:   #8a8275;   /* 灰 cinza   */
+
+  /* ---- ESPAÇAMENTO — base 4 · 間 ma: respiro é elemento, não sobra -------- */
+  --s1:4px; --s2:8px;  --s3:12px; --s4:16px; --s5:24px;
+  --s6:32px; --s7:48px; --s8:64px; --s9:96px;
+
+  /* ---- CANTOS — contidos, quase retos (restrição bushido) ---------------- */
+  --r-sm:3px; --r-md:5px;
+
+  /* ---- TIPOGRAFIA — três vozes, três papéis ------------------------------ */
+  --f-display:"Shippori Mincho", serif;        /* títulos — a voz do pincel    */
+  --f-body:"Zen Kaku Gothic New", sans-serif;  /* leitura — calma e clara      */
+  --f-mono:"JetBrains Mono", monospace;        /* markdown bruto — sagrado     */
+
+  /* escala de tamanho de fonte */
+  --fs-display:40px; --fs-h1:25px; --fs-h2:20px;
+  --fs-body:16px; --fs-small:13px; --fs-mono:14px;
+
+  /* ---- MOVIMENTO — 静寂 seijaku: nada se move com pressa ------------------ */
+  /* easing "tinta assentando": começa decidido, termina devagar             */
+  --ease-ink: cubic-bezier(.22,.61,.36,1);
+  --dur-fast:180ms;   /* micro-feedback (hover, foco)        */
+  --dur-calm:420ms;   /* transições de estado (tema, painel) */
+  --dur-slow:800ms;   /* momentos de reverência (ensō, save) */
+}
+
+/* ============================================================================
+   TOKENS SEMÂNTICOS — mapeiam pigmentos por tema (陰陽 yin-yang)
+   Tinta e papel são a MESMA coisa invertida. Nenhum é o "padrão".
+   ============================================================================ */
+
+[data-theme="ink"]{
+  --bg:#1b1a17;          /* fundo da janela            */
+  --surface:#23211d;     /* cartões, painéis           */
+  --surface-2:#2b2823;   /* item ativo, hover de lista */
+  --text:#ebe3d0;        /* texto principal            */
+  --text-muted:#8a8275;  /* meta, legendas, secundário */
+  --border:#3a362f;      /* linhas, divisores          */
+  --accent:#c14a35;      /* carimbo / ações (1 por tela)*/
+  --on-accent:#f4eeda;   /* texto sobre o acento       */
+  --link:#85acc9;        /* wikilinks e backlinks      */
+  --gold:#be9a4a;        /* destaque raríssimo         */
+  --focus:rgba(193,74,53,.35); /* anel de foco         */
+}
+
+[data-theme="paper"]{
+  --bg:#ebe3d0;
+  --surface:#e4dac4;
+  --surface-2:#dcd1b8;
+  --text:#1b1a17;
+  --text-muted:#6f6a5f;
+  --border:#cbbfa4;
+  --accent:#b8412e;
+  --on-accent:#f4eeda;
+  --link:#324a5e;
+  --gold:#a8843c;
+  --focus:rgba(184,65,46,.30);
+}
+
+/* fallback: se nenhum data-theme estiver setado, assume tinta */
+:root:not([data-theme]){ color-scheme:dark; }
+
+/* ============================================================================
+   BASE — aplicar no root da app
+   ============================================================================ */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--f-body);
+  font-weight:300;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  transition:background var(--dur-calm) var(--ease-ink), color var(--dur-calm) var(--ease-ink);
+}
+
+/* ---- textura washi — grão de papel quase imperceptível (sentida, não vista) */
+/* aplicar no container raiz da app. Opacidade baixíssima de propósito.        */
+.washi-grain{
+  background-image:
+    radial-gradient(rgba(128,116,92,.028) 1px, transparent 1px),
+    radial-gradient(rgba(128,116,92,.018) 1px, transparent 1px);
+  background-size: 4px 4px, 7px 7px;
+  background-position: 0 0, 2px 3px;
+}
+
+/* ---- seleção de texto — marcar o texto é pincelar tinta -------------------- */
+::selection{ background:var(--accent); color:var(--on-accent); }
+
+/* ---- scrollbar — fina, discreta, some quando não precisa ------------------- */
+*{ scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+*::-webkit-scrollbar{ width:8px; height:8px; }
+*::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+*::-webkit-scrollbar-thumb:hover{ background:var(--text-muted); }
+*::-webkit-scrollbar-track{ background:transparent; }
+
+/* ---- rótulo vertical — 縦書き, usar raríssimo (um por tela, no máximo) ------ */
+.tategaki{
+  writing-mode:vertical-rl;
+  font-family:var(--f-display);
+  font-size:var(--fs-small);
+  letter-spacing:.4em;
+  color:var(--text-muted);
+}
+
+/* piso de acessibilidade — não é opcional */
+*:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }

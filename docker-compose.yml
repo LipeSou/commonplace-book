@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: commonplace-db
+    environment:
+      POSTGRES_DB: commonplace
+      POSTGRES_USER: commonplace
+      POSTGRES_PASSWORD: commonplace
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U commonplace -d commonplace"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./api
+    container_name: commonplace-api
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/commonplace
+      DB_USER: commonplace
+      DB_PASSWORD: commonplace
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # opcional: sobe só com `docker compose --profile tools up`
+  adminer:
+    image: adminer:4
+    container_name: commonplace-adminer
+    profiles: [tools]
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
