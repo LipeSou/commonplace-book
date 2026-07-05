@@ -15,6 +15,11 @@
       <p v-if="notice" class="notice">{{ notice }}</p>
       <p v-if="loadError" class="error">{{ loadError }}</p>
 
+      <p v-if="activeTag" class="filter">
+        mostrando <span class="filter-tag">#{{ activeTag }}</span>
+        <button class="clear" @click="clearFilter" aria-label="Limpar filtro">✕</button>
+      </p>
+
       <div class="cards">
         <NoteCard
           v-for="note in notes"
@@ -22,7 +27,11 @@
           :note="note"
           :selected="note.id === selected?.id"
           @select="select(note)"
+          @pick-tag="filterByTag"
         />
+        <p v-if="activeTag && notes.length === 0" class="empty-filter">
+          Nenhuma nota com essa tag.
+        </p>
       </div>
     </aside>
 
@@ -34,6 +43,7 @@
         :error="editorError"
         @save="save"
         @delete="remove"
+        @pick-tag="filterByTag"
       />
     </main>
   </div>
@@ -57,6 +67,7 @@ const editing = ref(false)
 const loadError = ref('')
 const editorError = ref('')
 const notice = ref('')
+const activeTag = ref('')
 let noticeTimer = null
 
 function flash(message) {
@@ -77,15 +88,25 @@ async function onImport({ imported, failed }) {
   }
 }
 
-const showEmpty = computed(() => notes.value.length === 0 && !editing.value)
+const showEmpty = computed(() => notes.value.length === 0 && !editing.value && !activeTag.value)
 
 async function reload() {
   loadError.value = ''
   try {
-    notes.value = await listNotes()
+    notes.value = await listNotes(activeTag.value || undefined)
   } catch (e) {
     loadError.value = e.message
   }
+}
+
+function filterByTag(tag) {
+  activeTag.value = tag
+  reload()
+}
+
+function clearFilter() {
+  activeTag.value = ''
+  reload()
 }
 
 function select(note) {
@@ -202,6 +223,40 @@ h1 {
   font-size: var(--fs-small);
   margin: 0;
   transition: opacity var(--dur-calm) var(--ease-ink);
+}
+
+.filter {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  margin: 0;
+}
+
+.filter-tag {
+  font-family: var(--f-mono);
+  color: var(--text);
+}
+
+.clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--fs-small);
+  padding: 0 var(--s1);
+  transition: color var(--dur-fast) var(--ease-ink);
+}
+
+.clear:hover {
+  color: var(--accent);
+}
+
+.empty-filter {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
+  margin: var(--s3) 0 0;
 }
 
 .cards {

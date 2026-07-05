@@ -1,10 +1,14 @@
 package com.felipe.commonplace.note;
 
+import com.felipe.commonplace.tag.Tag;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +17,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "notes")
@@ -42,6 +48,18 @@ public class Note {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    /**
+     * Tags derivadas do content (via {@code #hashtags}). Índice descartável:
+     * recalculado a cada save. A Note é o lado dono da relação.
+     */
+    @ManyToMany
+    @JoinTable(
+            name = "note_tags",
+            joinColumns = @JoinColumn(name = "note_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new LinkedHashSet<>();
 
     public Note(String title, String content) {
         this.title = title;

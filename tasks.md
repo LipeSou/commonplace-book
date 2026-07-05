@@ -38,12 +38,12 @@
 
 ## FASE 2 — Tags
 
-- [ ] ⚡ Tabelas `tags` e `note_tags` (many-to-many) + migration
-- [ ] ⚡ Mapeamento JPA do relacionamento
-- [ ] ⚡ Derivar tags do `content` (extrair `#hashtags`) ao salvar — sem nunca alterar o bruto
-- [ ] ⚡ Recalcular tags quando o `content` muda
-- [ ] ⚡ Endpoint de listar notas por tag + listar todas as tags
-- [ ] ⚡ UI: selos hanko de tags nos cartões e na tela da nota (carimbos, não pílulas)
+- [x] ⚡ Tabelas `tags` e `note_tags` (many-to-many) + migration
+- [x] ⚡ Mapeamento JPA do relacionamento
+- [x] ⚡ Derivar tags do `content` (extrair `#hashtags`) ao salvar — sem nunca alterar o bruto
+- [x] ⚡ Recalcular tags quando o `content` muda
+- [x] ⚡ Endpoint de listar notas por tag + listar todas as tags
+- [x] ⚡ UI: selos hanko de tags nos cartões e na tela da nota (carimbos, não pílulas) — clicar no selo filtra a lista
 - [ ] 👤 Testar no app: escrever `#tags` numa nota e ver os selos aparecerem
 
 **Meta:** tags como dado derivado, sempre em sincronia com o conteúdo.

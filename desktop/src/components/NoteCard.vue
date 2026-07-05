@@ -9,18 +9,27 @@
     <h3>{{ note.title }}</h3>
     <p class="meta">{{ formatDate(note.updatedAt) }}</p>
     <p v-if="excerpt" class="excerpt">{{ excerpt }}</p>
+    <div v-if="note.tags?.length" class="tags">
+      <TagStamp
+        v-for="tag in note.tags"
+        :key="tag"
+        :name="tag"
+        @pick="$emit('pick-tag', tag)"
+      />
+    </div>
   </article>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import TagStamp from './TagStamp.vue'
 
 const props = defineProps({
   note: { type: Object, required: true },
   selected: { type: Boolean, default: false }
 })
 
-defineEmits(['select'])
+defineEmits(['select', 'pick-tag'])
 
 const excerpt = computed(() => {
   const text = props.note.content.trim()
@@ -75,5 +84,12 @@ h3 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s3);
 }
 </style>

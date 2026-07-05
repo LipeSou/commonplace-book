@@ -58,6 +58,8 @@ Nunca altere o `content` pra caber em alguma estrutura. Isso mantém a exportaç
 
 - Tudo sobe com **um comando**: `docker-compose up` (API + Postgres; Adminer opcional).
 - API em `http://localhost:8080`. O desktop (Electron) roda **fora** do Docker e fala com a API por HTTP.
+- **Doc da API (Swagger UI):** `http://localhost:8080/swagger-ui.html` — endpoints interativos, gerados do código.
+- **Doc do banco:** `docs/DATABASE.md` (diagrama ER em Mermaid + dicionário das tabelas).
 - O `content` das notas é a fonte da verdade no Postgres; nunca mexer nele "por fora".
 
 ---
@@ -79,6 +81,7 @@ Nunca altere o `content` pra caber em alguma estrutura. Isso mantém a exportaç
 | `tasks.md` | O **trabalho**: checklists por fase. | Toda sessão |
 | `DESIGN.md` | Regras de UI. Ler antes de gerar tela. | Ocasional |
 | `tokens.css` | Tokens de design (cor/tipo/espaço). Fonte única. | Ocasional |
+| `docs/DATABASE.md` | Diagrama ER (Mermaid) + dicionário das tabelas. | A cada migration |
 
 ---
 

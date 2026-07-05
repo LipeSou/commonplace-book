@@ -2,6 +2,10 @@ package com.felipe.commonplace.note;
 
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -21,11 +26,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
+@Tag(name = "Notas", description = "CRUD das notas. O `content` é o markdown bruto, preservado byte a byte.")
 public class NoteController {
 
     private final NoteService service;
 
     @PostMapping
+    @Operation(summary = "Cria uma nota", description = "Salva o markdown bruto e deriva as tags do content.")
+    @ApiResponse(responseCode = "201", description = "Nota criada")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos (título em branco ou content nulo)")
     public ResponseEntity<NoteResponse> create(@Valid @RequestBody NoteRequest request) {
         NoteResponse created = service.create(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -36,21 +45,35 @@ public class NoteController {
     }
 
     @GetMapping
-    public List<NoteResponse> findAll() {
-        return service.findAll();
+    @Operation(summary = "Lista as notas",
+            description = "Todas as notas (mais recentes primeiro). Com `?tag=`, filtra pelas que carregam a tag.")
+    public List<NoteResponse> findAll(
+            @Parameter(description = "Filtra pelas notas que têm esta tag (sem o `#`)")
+            @RequestParam(required = false) String tag) {
+        return (tag == null || tag.isBlank()) ? service.findAll() : service.findByTag(tag);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Busca uma nota pelo id")
+    @ApiResponse(responseCode = "200", description = "Nota encontrada")
+    @ApiResponse(responseCode = "404", description = "Nota não encontrada")
     public NoteResponse findById(@PathVariable Long id) {
         return service.findById(id);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualiza uma nota", description = "Reescreve título e content, e recalcula as tags.")
+    @ApiResponse(responseCode = "200", description = "Nota atualizada")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    @ApiResponse(responseCode = "404", description = "Nota não encontrada")
     public NoteResponse update(@PathVariable Long id, @Valid @RequestBody NoteRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Exclui uma nota")
+    @ApiResponse(responseCode = "204", description = "Nota excluída")
+    @ApiResponse(responseCode = "404", description = "Nota não encontrada")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

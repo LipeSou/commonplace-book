@@ -2,6 +2,7 @@ package com.felipe.commonplace.note;
 
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
+import com.felipe.commonplace.tag.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,16 +14,25 @@ import java.util.List;
 public class NoteService {
 
     private final NoteRepository repository;
+    private final TagService tagService;
 
     @Transactional
     public NoteResponse create(NoteRequest request) {
         Note note = new Note(request.title(), request.content());
+        note.setTags(tagService.resolveFrom(note.getContent()));
         return NoteResponse.from(repository.save(note));
     }
 
     @Transactional(readOnly = true)
     public List<NoteResponse> findAll() {
         return repository.findAllByOrderByUpdatedAtDesc().stream()
+                .map(NoteResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NoteResponse> findByTag(String tag) {
+        return repository.findByTags_NameOrderByUpdatedAtDesc(tag).stream()
                 .map(NoteResponse::from)
                 .toList();
     }
@@ -37,6 +47,7 @@ public class NoteService {
         Note note = getOrThrow(id);
         note.setTitle(request.title());
         note.setContent(request.content());
+        note.setTags(tagService.resolveFrom(note.getContent()));
         return NoteResponse.from(note);
     }
 

@@ -24,6 +24,16 @@
       placeholder="Escreva em markdown…"
     />
 
+    <div v-if="note?.tags?.length" class="tags">
+      <TagStamp
+        v-for="tag in note.tags"
+        :key="tag"
+        :name="tag"
+        muted
+        @pick="$emit('pick-tag', tag)"
+      />
+    </div>
+
     <p v-if="error" class="error">{{ error }}</p>
 
     <footer>
@@ -42,13 +52,14 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import MarkdownEditor from './MarkdownEditor.vue'
+import TagStamp from './TagStamp.vue'
 
 const props = defineProps({
   note: { type: Object, default: null },
   error: { type: String, default: '' }
 })
 
-const emit = defineEmits(['save', 'delete'])
+const emit = defineEmits(['save', 'delete', 'pick-tag'])
 
 const title = ref('')
 const content = ref('')
@@ -119,6 +130,12 @@ function formatDate(iso) {
   font-size: var(--fs-small);
   color: var(--text-muted);
   margin: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
 }
 
 .error {

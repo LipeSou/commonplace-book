@@ -20,8 +20,9 @@ async function request(url, options = {}) {
   return body
 }
 
-export function listNotes() {
-  return request(BASE)
+export function listNotes(tag) {
+  const url = tag ? `${BASE}?tag=${encodeURIComponent(tag)}` : BASE
+  return request(url)
 }
 
 export function getNote(id) {
