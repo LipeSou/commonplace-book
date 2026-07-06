@@ -15,6 +15,8 @@
       <p v-if="notice" class="notice">{{ notice }}</p>
       <p v-if="loadError" class="error">{{ loadError }}</p>
 
+      <TagPanel :tags="tags" :active="activeTag" @pick="onPickTag" />
+
       <p v-if="activeTag" class="filter">
         mostrando <span class="filter-tag">#{{ activeTag }}</span>
         <button class="clear" @click="clearFilter" aria-label="Limpar filtro">✕</button>
@@ -51,17 +53,19 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { listNotes, createNote, updateNote, deleteNote } from './api/notes.js'
+import { listNotes, createNote, updateNote, deleteNote, listTags } from './api/notes.js'
 import { useTheme } from './composables/useTheme.js'
 import NoteCard from './components/NoteCard.vue'
 import NoteEditor from './components/NoteEditor.vue'
 import EmptyState from './components/EmptyState.vue'
 import ImportNotes from './components/ImportNotes.vue'
+import TagPanel from './components/TagPanel.vue'
 
 const { theme, toggle } = useTheme()
 const themeLabel = computed(() => (theme.value === 'ink' ? 'Trocar para papel' : 'Trocar para tinta'))
 
 const notes = ref([])
+const tags = ref([])
 const selected = ref(null)      // null = nada aberto; { id: undefined } = rascunho novo
 const editing = ref(false)
 const loadError = ref('')
@@ -94,6 +98,7 @@ async function reload() {
   loadError.value = ''
   try {
     notes.value = await listNotes(activeTag.value || undefined)
+    tags.value = await listTags()
   } catch (e) {
     loadError.value = e.message
   }
@@ -107,6 +112,12 @@ function filterByTag(tag) {
 function clearFilter() {
   activeTag.value = ''
   reload()
+}
+
+// no painel: clicar na tag ativa desliga o filtro; nas outras, filtra
+function onPickTag(tag) {
+  if (tag === activeTag.value) clearFilter()
+  else filterByTag(tag)
 }
 
 function select(note) {

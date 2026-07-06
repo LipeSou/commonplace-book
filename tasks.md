@@ -44,6 +44,7 @@
 - [x] ⚡ Recalcular tags quando o `content` muda
 - [x] ⚡ Endpoint de listar notas por tag + listar todas as tags
 - [x] ⚡ UI: selos hanko de tags nos cartões e na tela da nota (carimbos, não pílulas) — clicar no selo filtra a lista
+- [x] ⚡ UI: painel de tags na sidebar (lista todas + contagem, via `GET /api/tags`); tag ativa vira o único acento, clicar de novo limpa
 - [ ] 👤 Testar no app: escrever `#tags` numa nota e ver os selos aparecerem
 
 **Meta:** tags como dado derivado, sempre em sincronia com o conteúdo.

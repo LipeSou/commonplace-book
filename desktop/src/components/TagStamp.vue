@@ -4,13 +4,14 @@
     :class="{ muted }"
     type="button"
     @click.stop="$emit('pick', name)"
-  >#{{ name }}</button>
+  >#{{ name }}<span v-if="count != null" class="count">{{ count }}</span></button>
 </template>
 
 <script setup>
 defineProps({
   name: { type: String, required: true },
-  muted: { type: Boolean, default: false }
+  muted: { type: Boolean, default: false },
+  count: { type: Number, default: null }
 })
 
 defineEmits(['pick'])
@@ -48,5 +49,11 @@ defineEmits(['pick'])
 .stamp.muted:hover {
   transform: none;
   color: var(--text);
+}
+
+/* contagem discreta ao lado do nome */
+.count {
+  margin-left: var(--s2);
+  color: var(--text-muted);
 }
 </style>

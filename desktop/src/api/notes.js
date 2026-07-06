@@ -40,3 +40,7 @@ export function updateNote(id, { title, content }) {
 export function deleteNote(id) {
   return request(`${BASE}/${id}`, { method: 'DELETE' })
 }
+
+export function listTags() {
+  return request('http://localhost:8080/api/tags')
+}
