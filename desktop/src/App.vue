@@ -10,6 +10,10 @@
 
       <button class="new-note btn-secondary" @click="startNew">Nova nota</button>
 
+      <button class="btn-text graph-toggle" @click="showGraph = !showGraph">
+        {{ showGraph ? 'voltar à nota' : '縁 ver o grafo' }}
+      </button>
+
       <ImportNotes @done="onImport" />
 
       <p v-if="notice" class="notice">{{ notice }}</p>
@@ -28,6 +32,7 @@
           :key="note.id"
           :note="note"
           :selected="note.id === selected?.id"
+          :backlinks="backlinkCount(note.id)"
           @select="select(note)"
           @pick-tag="filterByTag"
         />
@@ -38,14 +43,24 @@
     </aside>
 
     <main class="pane">
-      <EmptyState v-if="showEmpty" @create="startNew" />
+      <GraphView
+        v-if="showGraph"
+        :nodes="graph.nodes"
+        :edges="graph.edges"
+        :current-id="selected?.id ?? null"
+        @open="openNote"
+      />
+      <EmptyState v-else-if="showEmpty" @create="startNew" />
       <NoteEditor
         v-else
         :note="selected"
+        :backlinks="backlinks"
         :error="editorError"
         @save="save"
         @delete="remove"
         @pick-tag="filterByTag"
+        @open-note="openNote"
+        @open-link="openByTitle"
       />
     </main>
   </div>
@@ -53,19 +68,26 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { listNotes, createNote, updateNote, deleteNote, listTags } from './api/notes.js'
+import {
+  listNotes, getNote, createNote, updateNote, deleteNote,
+  listTags, listBacklinks, getGraph
+} from './api/notes.js'
 import { useTheme } from './composables/useTheme.js'
 import NoteCard from './components/NoteCard.vue'
 import NoteEditor from './components/NoteEditor.vue'
 import EmptyState from './components/EmptyState.vue'
 import ImportNotes from './components/ImportNotes.vue'
 import TagPanel from './components/TagPanel.vue'
+import GraphView from './components/GraphView.vue'
 
 const { theme, toggle } = useTheme()
 const themeLabel = computed(() => (theme.value === 'ink' ? 'Trocar para papel' : 'Trocar para tinta'))
 
 const notes = ref([])
 const tags = ref([])
+const graph = ref({ nodes: [], edges: [] })
+const backlinks = ref([])
+const showGraph = ref(false)
 const selected = ref(null)      // null = nada aberto; { id: undefined } = rascunho novo
 const editing = ref(false)
 const loadError = ref('')
@@ -99,9 +121,39 @@ async function reload() {
   try {
     notes.value = await listNotes(activeTag.value || undefined)
     tags.value = await listTags()
+    graph.value = await getGraph()
+    await loadBacklinks()
   } catch (e) {
     loadError.value = e.message
   }
+}
+
+async function loadBacklinks() {
+  backlinks.value = selected.value?.id ? await listBacklinks(selected.value.id) : []
+}
+
+function backlinkCount(id) {
+  return Number(graph.value.nodes.find(n => n.id === id)?.backlinks ?? 0)
+}
+
+async function openNote(id) {
+  editorError.value = ''
+  try {
+    selected.value = await getNote(id)
+    editing.value = true
+    showGraph.value = false
+    await loadBacklinks()
+  } catch (e) {
+    editorError.value = e.message
+  }
+}
+
+// Ctrl+clique num [[wikilink]]: abre a nota daquele título, se ela existir
+function openByTitle(title) {
+  const key = title.trim().toLowerCase()
+  const node = graph.value.nodes.find(n => n.title.trim().toLowerCase() === key)
+  if (node) openNote(node.id)
+  else flash(`Nenhuma nota com o título "${title}" — o link ainda está aberto.`)
 }
 
 function filterByTag(tag) {
@@ -124,12 +176,16 @@ function select(note) {
   selected.value = note
   editing.value = true
   editorError.value = ''
+  showGraph.value = false
+  loadBacklinks()
 }
 
 function startNew() {
   selected.value = null
   editing.value = true
   editorError.value = ''
+  showGraph.value = false
+  backlinks.value = []
 }
 
 async function save({ title, content }) {
@@ -153,6 +209,7 @@ async function remove() {
     await deleteNote(selected.value.id)
     selected.value = null
     editing.value = false
+    backlinks.value = []
     await reload()
   } catch (e) {
     editorError.value = e.message
@@ -221,6 +278,23 @@ h1 {
 
 .btn-secondary:hover {
   border-color: var(--text-muted);
+}
+
+.graph-toggle {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--f-body);
+  font-size: var(--fs-small);
+  cursor: pointer;
+  padding: 0;
+  margin-top: calc(-1 * var(--s3));
+  transition: color var(--dur-fast) var(--ease-ink);
+}
+
+.graph-toggle:hover {
+  color: var(--text);
 }
 
 .error {

@@ -22,7 +22,7 @@ const props = defineProps({
   rawMode: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'open-link'])
 
 const host = ref(null)
 let view = null
@@ -186,6 +186,32 @@ function buildDecorations(view) {
   return Decoration.set(ranges, true)
 }
 
+// o [[wikilink]] sob o cursor do mouse, se houver (título limpo de apelido e âncora)
+function wikilinkAt(state, pos) {
+  const line = state.doc.lineAt(pos)
+  for (const m of line.text.matchAll(WIKILINK)) {
+    const from = line.from + m.index
+    if (pos >= from && pos <= from + m[0].length) {
+      return m[1].split(/[|#]/)[0].trim()
+    }
+  }
+  return null
+}
+
+// Ctrl/⌘+clique num wikilink navega; clique simples continua sendo só cursor
+const followLinks = EditorView.domEventHandlers({
+  mousedown(event, view) {
+    if (!event.ctrlKey && !event.metaKey) return false
+    const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
+    if (pos == null) return false
+    const title = wikilinkAt(view.state, pos)
+    if (!title) return false
+    event.preventDefault()
+    emit('open-link', title)
+    return true
+  }
+})
+
 const livePreview = ViewPlugin.fromClass(
   class {
     constructor(view) {
@@ -260,6 +286,7 @@ onMounted(() => {
         EditorView.lineWrapping,
         cmPlaceholder(props.placeholder),
         baseTheme,
+        followLinks,
         modeConfig.of(modeExtensions(props.rawMode)),
         EditorView.updateListener.of(update => {
           if (update.docChanged) emit('update:modelValue', update.state.doc.toString())

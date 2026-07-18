@@ -7,7 +7,10 @@
     @keydown.enter="$emit('select')"
   >
     <h3>{{ note.title }}</h3>
-    <p class="meta">{{ formatDate(note.updatedAt) }}</p>
+    <p class="meta">
+      {{ formatDate(note.updatedAt) }}
+      <span v-if="backlinks > 0" class="backlinks">· ← {{ backlinks }}</span>
+    </p>
     <p v-if="excerpt" class="excerpt">{{ excerpt }}</p>
     <div v-if="note.tags?.length" class="tags">
       <TagStamp
@@ -26,7 +29,8 @@ import TagStamp from './TagStamp.vue'
 
 const props = defineProps({
   note: { type: Object, required: true },
-  selected: { type: Boolean, default: false }
+  selected: { type: Boolean, default: false },
+  backlinks: { type: Number, default: 0 }
 })
 
 defineEmits(['select', 'pick-tag'])
@@ -74,6 +78,10 @@ h3 {
   font-size: var(--fs-small);
   color: var(--text-muted);
   margin: 0 0 var(--s2);
+}
+
+.backlinks {
+  color: var(--link);
 }
 
 .excerpt {

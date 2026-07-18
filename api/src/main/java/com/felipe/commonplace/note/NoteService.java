@@ -1,5 +1,6 @@
 package com.felipe.commonplace.note;
 
+import com.felipe.commonplace.link.LinkService;
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
 import com.felipe.commonplace.tag.TagService;
@@ -15,12 +16,15 @@ public class NoteService {
 
     private final NoteRepository repository;
     private final TagService tagService;
+    private final LinkService linkService;
 
     @Transactional
     public NoteResponse create(NoteRequest request) {
         Note note = new Note(request.title(), request.content());
         note.setTags(tagService.resolveFrom(note.getContent()));
-        return NoteResponse.from(repository.save(note));
+        Note saved = repository.save(note);
+        reindex(saved);
+        return NoteResponse.from(saved);
     }
 
     @Transactional(readOnly = true)
@@ -42,18 +46,34 @@ public class NoteService {
         return NoteResponse.from(getOrThrow(id));
     }
 
+    @Transactional(readOnly = true)
+    public List<NoteResponse> findBacklinks(Long id) {
+        return linkService.findBacklinks(getOrThrow(id)).stream()
+                .map(NoteResponse::from)
+                .toList();
+    }
+
     @Transactional
     public NoteResponse update(Long id, NoteRequest request) {
         Note note = getOrThrow(id);
         note.setTitle(request.title());
         note.setContent(request.content());
         note.setTags(tagService.resolveFrom(note.getContent()));
+        reindex(note);
         return NoteResponse.from(note);
     }
 
     @Transactional
     public void delete(Long id) {
-        repository.delete(getOrThrow(id));
+        Note note = getOrThrow(id);
+        linkService.removeFor(note);
+        repository.delete(note);
+    }
+
+    /** Recalcula o grafo em volta da nota: o que sai dela e o que chega nela. */
+    private void reindex(Note note) {
+        linkService.rebuildFor(note);
+        linkService.resolveIncoming(note);
     }
 
     private Note getOrThrow(Long id) {

@@ -61,6 +61,15 @@ public class NoteController {
         return service.findById(id);
     }
 
+    @GetMapping("/{id}/backlinks")
+    @Operation(summary = "As notas que apontam para esta",
+            description = "Quem escreveu um `[[wikilink]]` para o título desta nota. A própria não conta.")
+    @ApiResponse(responseCode = "200", description = "Backlinks encontrados (pode vir lista vazia)")
+    @ApiResponse(responseCode = "404", description = "Nota não encontrada")
+    public List<NoteResponse> backlinks(@PathVariable Long id) {
+        return service.findBacklinks(id);
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza uma nota", description = "Reescreve título e content, e recalcula as tags.")
     @ApiResponse(responseCode = "200", description = "Nota atualizada")

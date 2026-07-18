@@ -22,6 +22,7 @@
       v-model="content"
       :raw-mode="rawMode"
       placeholder="Escreva em markdown…"
+      @open-link="$emit('open-link', $event)"
     />
 
     <div v-if="note?.tags?.length" class="tags">
@@ -33,6 +34,8 @@
         @pick="$emit('pick-tag', tag)"
       />
     </div>
+
+    <BacklinkPanel :notes="backlinks" @open="$emit('open-note', $event)" />
 
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -53,13 +56,15 @@
 import { ref, computed, watch } from 'vue'
 import MarkdownEditor from './MarkdownEditor.vue'
 import TagStamp from './TagStamp.vue'
+import BacklinkPanel from './BacklinkPanel.vue'
 
 const props = defineProps({
   note: { type: Object, default: null },
+  backlinks: { type: Array, default: () => [] },
   error: { type: String, default: '' }
 })
 
-const emit = defineEmits(['save', 'delete', 'pick-tag'])
+const emit = defineEmits(['save', 'delete', 'pick-tag', 'open-note', 'open-link'])
 
 const title = ref('')
 const content = ref('')

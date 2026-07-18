@@ -53,12 +53,13 @@
 
 ## FASE 3 — Links e backlinks (o grafo)
 
-- [ ] ⚡ Tabela `links` (`source_note_id`, `target_note_id`) + migration
-- [ ] ⚡ Parsear `[[wikilinks]]` do `content` (commonmark-java) e popular `links` ao salvar
-- [ ] ⚡ Recalcular links quando o `content` muda
-- [ ] ⚡ Endpoint de backlinks ("quais notas apontam pra esta?")
-- [ ] ⚡ Endpoint do grafo (nós + arestas) pro frontend desenhar
-- [ ] ⚡ UI: backlinks na tela da nota ("← N notas apontam para esta") + visualização do grafo
+- [x] ⚡ Tabela `links` (`source_note_id`, `target_title`, `target_note_id`) + migration — título guardado para o link quebrado religar sozinho quando a nota alvo nascer
+- [x] ⚡ Parsear `[[wikilinks]]` do `content` (regex própria, como o `TagExtractor`) e popular `links` ao salvar — aceita `[[Título|apelido]]` e `[[Título#seção]]`
+- [x] ⚡ Recalcular links quando o `content` muda (e religar/soltar os que chegam quando o **título** muda)
+- [x] ⚡ Endpoint de backlinks (`GET /api/notes/{id}/backlinks`)
+- [x] ⚡ Endpoint do grafo (`GET /api/graph` — nós com contagem de backlinks + arestas)
+- [x] ⚡ Reindex na subida: notas escritas antes da tabela `links` entram no grafo sozinhas
+- [x] ⚡ UI: backlinks na tela da nota ("← N notas apontam para esta") + grafo (`縁 ver o grafo`) + contador `← N` no cartão + Ctrl/⌘+clique num `[[wikilink]]` abre a nota
 - [ ] 👤 Testar no app: criar notas com `[[wikilinks]]` e navegar pelos backlinks/grafo
 
 **Meta:** notas conectadas, backlinks funcionando.

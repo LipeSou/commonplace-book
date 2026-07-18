@@ -44,3 +44,11 @@ export function deleteNote(id) {
 export function listTags() {
   return request('http://localhost:8080/api/tags')
 }
+
+export function listBacklinks(id) {
+  return request(`${BASE}/${id}/backlinks`)
+}
+
+export function getGraph() {
+  return request('http://localhost:8080/api/graph')
+}
