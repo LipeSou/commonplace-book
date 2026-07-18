@@ -68,11 +68,12 @@
 
 ## FASE 4 — Busca full-text
 
-- [ ] ⚡ Coluna/índice `tsvector` derivado do `content` + índice GIN, via migration
-- [ ] ⚡ Recalcular o índice quando o `content` muda
-- [ ] ⚡ Query de busca (nativa) com ranking de relevância
-- [ ] ⚡ Endpoint de busca com paginação
-- [ ] ⚡ UI: campo de busca cidadão de primeira classe (glifo `⌕`, resultados na lista)
+- [x] ⚡ Coluna `notes.search` (`tsvector` **gerada** pelo Postgres: título peso A, content peso B) + índice GIN — migration V4
+- [x] ⚡ Recalcular o índice quando o `content` muda — de graça: coluna gerada nunca sai de sincronia
+- [x] ⚡ Busca tolerante a acento ("pratica" acha "prática") via `cpb_unaccent` — migration V5
+- [x] ⚡ Query nativa com `websearch_to_tsquery` (`"frase exata"`, `or`, `-excluir`), ranking `ts_rank` e trecho `ts_headline`
+- [x] ⚡ Endpoint `GET /api/notes/search?q=&page=&size=` com paginação
+- [x] ⚡ UI: campo de busca com glifo `⌕` (debounce de 250ms), resultados na lista com o trecho destacado, "carregar mais"
 - [ ] 👤 Testar no app: buscar entre várias notas e sentir a relevância
 
 **Meta:** busca rápida e relevante em todas as notas.

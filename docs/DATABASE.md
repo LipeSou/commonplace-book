@@ -7,7 +7,7 @@
 ## Princípio
 
 O **`content` bruto de cada nota é sagrado** (veja o [CLAUDE.md](../CLAUDE.md)): fica na coluna `notes.content`,
-exatamente como foi digitado. Todo o resto — `tags`, `links` e futuramente o índice de busca — é **derivado**
+exatamente como foi digitado. Todo o resto — `tags`, `links` e o índice de busca (`notes.search`) — é **derivado**
 dele: índice descartável e recalculável. Nada aqui altera o content pra caber numa estrutura.
 
 ## Diagrama ER
@@ -94,6 +94,24 @@ Apagar a nota de origem leva os links dela junto (`CASCADE`); apagar a nota alvo
 
 Único em (`source_note_id`, `target_title`) — citar a mesma nota duas vezes é uma aresta só.
 Índices em `target_note_id` (backlinks) e em `lower(target_title)` (religar links quebrados).
+
+### `notes.search` — índice full-text (migrations V4 e V5)
+Coluna **gerada pelo Postgres** (`GENERATED ALWAYS AS ... STORED`): ninguém precisa lembrar de
+recalcular, ela nunca sai de sincronia com o texto. Título com peso **A**, content com peso **B** —
+casar no título vale mais. Tudo passa por `cpb_unaccent()` antes de virar `tsvector`, então
+"pratica" acha "prática". Índice **GIN** em `search`.
+
+| Coluna | Tipo | Notas |
+|---|---|---|
+| `search` | `tsvector` | Gerada, sempre derivada de `title` + `content`. Não é mapeada no JPA — o banco é quem cuida |
+
+A busca usa `websearch_to_tsquery` (gramática de buscador: palavras soltas, `"frase exata"`, `or`,
+`-excluir`), ordena por `ts_rank` e devolve um trecho com `ts_headline` — tirado do **content original**,
+com acento e tudo. Consequência: quem busca sem acento acha a nota, mas o destaque `«…»` só aparece
+quando a grafia bate; nesse caso o trecho é o começo da nota.
+
+`cpb_unaccent(text)` é um embrulho `IMMUTABLE` do `unaccent()` com o dicionário fixo — o `unaccent()`
+puro é `STABLE` e não pode ser usado em coluna gerada.
 
 ## Como navegar o banco ao vivo
 

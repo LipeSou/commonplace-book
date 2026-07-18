@@ -2,6 +2,7 @@ package com.felipe.commonplace.note;
 
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
+import com.felipe.commonplace.note.dto.SearchPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -51,6 +52,24 @@ public class NoteController {
             @Parameter(description = "Filtra pelas notas que têm esta tag (sem o `#`)")
             @RequestParam(required = false) String tag) {
         return (tag == null || tag.isBlank()) ? service.findAll() : service.findByTag(tag);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Busca full-text nas notas",
+            description = """
+                    Procura no título (peso maior) e no content, com ranking de relevância.
+                    A consulta aceita a gramática de buscador: palavras soltas, `"frase exata"`,
+                    `or`, `-excluir`. Cada resultado vem com o trecho onde deu match.
+                    """)
+    public SearchPage search(
+            @Parameter(description = "O que procurar", example = "vazio zen")
+            @RequestParam String q,
+            @Parameter(description = "Página, base zero") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Resultados por página (1 a 100)") @RequestParam(defaultValue = "20") int size) {
+        if (q.isBlank()) {
+            return new SearchPage(List.of(), 0, page, size, false);
+        }
+        return service.search(q, Math.max(page, 0), Math.min(Math.max(size, 1), 100));
     }
 
     @GetMapping("/{id}")

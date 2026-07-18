@@ -45,6 +45,10 @@ export function listTags() {
   return request('http://localhost:8080/api/tags')
 }
 
+export function searchNotes(q, page = 0, size = 20) {
+  return request(`${BASE}/search?q=${encodeURIComponent(q)}&page=${page}&size=${size}`)
+}
+
 export function listBacklinks(id) {
   return request(`${BASE}/${id}/backlinks`)
 }

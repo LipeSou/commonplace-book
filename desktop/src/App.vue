@@ -14,12 +14,18 @@
         {{ showGraph ? 'voltar à nota' : '縁 ver o grafo' }}
       </button>
 
+      <SearchField v-model="query" :busy="searching" />
+
       <ImportNotes @done="onImport" />
 
       <p v-if="notice" class="notice">{{ notice }}</p>
       <p v-if="loadError" class="error">{{ loadError }}</p>
 
       <TagPanel :tags="tags" :active="activeTag" @pick="onPickTag" />
+
+      <p v-if="query.trim()" class="filter">
+        {{ searchTotal }} {{ searchTotal === 1 ? 'nota encontrada' : 'notas encontradas' }}
+      </p>
 
       <p v-if="activeTag" class="filter">
         mostrando <span class="filter-tag">#{{ activeTag }}</span>
@@ -28,7 +34,7 @@
 
       <div class="cards">
         <NoteCard
-          v-for="note in notes"
+          v-for="note in visibleNotes"
           :key="note.id"
           :note="note"
           :selected="note.id === selected?.id"
@@ -36,8 +42,14 @@
           @select="select(note)"
           @pick-tag="filterByTag"
         />
+        <button v-if="searchHasMore" class="more btn-text" @click="searchMore">
+          carregar mais
+        </button>
         <p v-if="activeTag && notes.length === 0" class="empty-filter">
           Nenhuma nota com essa tag.
+        </p>
+        <p v-if="query.trim() && !searching && searchResults.length === 0" class="empty-filter">
+          Nada por aqui. Tente outra palavra — ou uma <code>"frase exata"</code>.
         </p>
       </div>
     </aside>
@@ -67,10 +79,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import {
   listNotes, getNote, createNote, updateNote, deleteNote,
-  listTags, listBacklinks, getGraph
+  listTags, listBacklinks, getGraph, searchNotes
 } from './api/notes.js'
 import { useTheme } from './composables/useTheme.js'
 import NoteCard from './components/NoteCard.vue'
@@ -79,6 +91,7 @@ import EmptyState from './components/EmptyState.vue'
 import ImportNotes from './components/ImportNotes.vue'
 import TagPanel from './components/TagPanel.vue'
 import GraphView from './components/GraphView.vue'
+import SearchField from './components/SearchField.vue'
 
 const { theme, toggle } = useTheme()
 const themeLabel = computed(() => (theme.value === 'ink' ? 'Trocar para papel' : 'Trocar para tinta'))
@@ -94,7 +107,57 @@ const loadError = ref('')
 const editorError = ref('')
 const notice = ref('')
 const activeTag = ref('')
+const query = ref('')
+const searching = ref(false)
+const searchResults = ref([])
+const searchTotal = ref(0)
+const searchHasMore = ref(false)
 let noticeTimer = null
+let searchTimer = null
+let searchRun = 0
+
+const PAGE = 20
+
+// com busca ativa, a lista da sidebar é o resultado; sem ela, as notas de sempre
+const visibleNotes = computed(() => (query.value.trim() ? searchResults.value : notes.value))
+
+// digitar não dispara uma requisição por tecla: espera a mão parar
+watch(query, () => {
+  clearTimeout(searchTimer)
+  if (!query.value.trim()) {
+    searchRun++
+    searching.value = false
+    searchResults.value = []
+    searchTotal.value = 0
+    searchHasMore.value = false
+    return
+  }
+  activeTag.value = ''
+  searchTimer = setTimeout(() => runSearch(0), 250)
+})
+
+async function runSearch(page) {
+  const run = ++searchRun
+  const term = query.value.trim()
+  searching.value = true
+  try {
+    const result = await searchNotes(term, page, PAGE)
+    if (run !== searchRun) return // chegou tarde: outra busca já assumiu
+    const hits = result.results.map(hit => ({ ...hit.note, snippet: hit.snippet }))
+    searchResults.value = page === 0 ? hits : [...searchResults.value, ...hits]
+    searchTotal.value = result.total
+    searchHasMore.value = result.hasMore
+    loadError.value = ''
+  } catch (e) {
+    if (run === searchRun) loadError.value = e.message
+  } finally {
+    if (run === searchRun) searching.value = false
+  }
+}
+
+function searchMore() {
+  runSearch(Math.floor(searchResults.value.length / PAGE))
+}
 
 function flash(message) {
   notice.value = message
@@ -114,7 +177,9 @@ async function onImport({ imported, failed }) {
   }
 }
 
-const showEmpty = computed(() => notes.value.length === 0 && !editing.value && !activeTag.value)
+const showEmpty = computed(() =>
+  notes.value.length === 0 && !editing.value && !activeTag.value && !query.value.trim()
+)
 
 async function reload() {
   loadError.value = ''
@@ -123,6 +188,7 @@ async function reload() {
     tags.value = await listTags()
     graph.value = await getGraph()
     await loadBacklinks()
+    if (query.value.trim()) await runSearch(0)
   } catch (e) {
     loadError.value = e.message
   }
@@ -157,6 +223,7 @@ function openByTitle(title) {
 }
 
 function filterByTag(tag) {
+  query.value = ''
   activeTag.value = tag
   reload()
 }
@@ -342,6 +409,27 @@ h1 {
   color: var(--text-muted);
   font-size: var(--fs-small);
   margin: var(--s3) 0 0;
+}
+
+.empty-filter code {
+  font-family: var(--f-mono);
+  font-size: var(--fs-mono);
+}
+
+.more {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--f-body);
+  font-size: var(--fs-small);
+  cursor: pointer;
+  padding: var(--s2);
+  transition: color var(--dur-fast) var(--ease-ink);
+}
+
+.more:hover {
+  color: var(--text);
 }
 
 .cards {

@@ -3,12 +3,18 @@ package com.felipe.commonplace.note;
 import com.felipe.commonplace.link.LinkService;
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
+import com.felipe.commonplace.note.dto.SearchHit;
+import com.felipe.commonplace.note.dto.SearchPage;
 import com.felipe.commonplace.tag.TagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +57,24 @@ public class NoteService {
         return linkService.findBacklinks(getOrThrow(id)).stream()
                 .map(NoteResponse::from)
                 .toList();
+    }
+
+    /**
+     * Busca full-text. A ordem vem do ranking do Postgres; as notas são carregadas
+     * depois e reordenadas para respeitá-la.
+     */
+    @Transactional(readOnly = true)
+    public SearchPage search(String query, int page, int size) {
+        Page<SearchProjection> hits = repository.search(query, PageRequest.of(page, size));
+        Map<Long, Note> byId = repository.findAllById(hits.map(SearchProjection::getId).toList()).stream()
+                .collect(Collectors.toMap(Note::getId, note -> note));
+
+        List<SearchHit> results = hits.stream()
+                .filter(hit -> byId.containsKey(hit.getId()))
+                .map(hit -> new SearchHit(NoteResponse.from(byId.get(hit.getId())), hit.getSnippet()))
+                .toList();
+
+        return new SearchPage(results, hits.getTotalElements(), page, size, hits.hasNext());
     }
 
     @Transactional

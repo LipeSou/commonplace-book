@@ -11,7 +11,13 @@
       {{ formatDate(note.updatedAt) }}
       <span v-if="backlinks > 0" class="backlinks">· ← {{ backlinks }}</span>
     </p>
-    <p v-if="excerpt" class="excerpt">{{ excerpt }}</p>
+    <p v-if="note.snippet" class="excerpt">
+      <template v-for="(part, i) in snippet" :key="i">
+        <mark v-if="part.hit">{{ part.text }}</mark>
+        <template v-else>{{ part.text }}</template>
+      </template>
+    </p>
+    <p v-else-if="excerpt" class="excerpt">{{ excerpt }}</p>
     <div v-if="note.tags?.length" class="tags">
       <TagStamp
         v-for="tag in note.tags"
@@ -34,6 +40,22 @@ const props = defineProps({
 })
 
 defineEmits(['select', 'pick-tag'])
+
+// o trecho vem da API com o achado entre « e » — vira <mark> sem HTML cru no meio
+const snippet = computed(() => {
+  const parts = []
+  const re = /«([^»]*)»/g
+  let last = 0
+  let m
+  while ((m = re.exec(props.note.snippet ?? '')) !== null) {
+    if (m.index > last) parts.push({ text: props.note.snippet.slice(last, m.index), hit: false })
+    parts.push({ text: m[1], hit: true })
+    last = m.index + m[0].length
+  }
+  const tail = (props.note.snippet ?? '').slice(last)
+  if (tail) parts.push({ text: tail, hit: false })
+  return parts
+})
 
 const excerpt = computed(() => {
   const text = props.note.content.trim()
@@ -82,6 +104,13 @@ h3 {
 
 .backlinks {
   color: var(--link);
+}
+
+mark {
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  padding: 0 var(--s1);
 }
 
 .excerpt {
