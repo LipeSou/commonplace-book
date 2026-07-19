@@ -16,7 +16,11 @@
 
       <SearchField v-model="query" :busy="searching" />
 
-      <ImportNotes @done="onImport" />
+      <FileActions
+        @done="onImport"
+        @exported="name => flash(`Exportado: ${name}`)"
+        @failed="message => flash(message)"
+      />
 
       <p v-if="notice" class="notice">{{ notice }}</p>
       <p v-if="loadError" class="error">{{ loadError }}</p>
@@ -88,7 +92,7 @@ import { useTheme } from './composables/useTheme.js'
 import NoteCard from './components/NoteCard.vue'
 import NoteEditor from './components/NoteEditor.vue'
 import EmptyState from './components/EmptyState.vue'
-import ImportNotes from './components/ImportNotes.vue'
+import FileActions from './components/FileActions.vue'
 import TagPanel from './components/TagPanel.vue'
 import GraphView from './components/GraphView.vue'
 import SearchField from './components/SearchField.vue'

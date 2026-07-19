@@ -56,3 +56,5 @@ export function listBacklinks(id) {
 export function getGraph() {
   return request('http://localhost:8080/api/graph')
 }
+
+export const EXPORT_URL = 'http://localhost:8080/api/export'

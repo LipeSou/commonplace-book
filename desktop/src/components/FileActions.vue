@@ -1,8 +1,10 @@
 <template>
-  <div class="import">
+  <div class="actions">
     <button class="btn-text" :disabled="busy" @click="filesInput.click()">Importar arquivos</button>
     <span class="dot">·</span>
     <button class="btn-text" :disabled="busy" @click="dirInput.click()">Importar pasta</button>
+    <span class="dot">·</span>
+    <button class="btn-text" :disabled="busy" @click="exportAll">Exportar</button>
 
     <input
       ref="filesInput"
@@ -24,9 +26,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { createNote } from '../api/notes.js'
+import { createNote, EXPORT_URL } from '../api/notes.js'
 
-const emit = defineEmits(['done'])
+const emit = defineEmits(['done', 'exported', 'failed'])
 
 const filesInput = ref(null)
 const dirInput = ref(null)
@@ -69,11 +71,41 @@ async function onPick(event) {
   busy.value = false
   emit('done', { imported, failed })
 }
+
+// baixa o zip de .md — a nota sai daqui do jeito que entrou, e vai pra onde você quiser
+async function exportAll() {
+  busy.value = true
+  try {
+    const res = await fetch(EXPORT_URL)
+    if (!res.ok) throw new Error(`A API respondeu ${res.status}`)
+    const blob = await res.blob()
+    const name = fileNameFrom(res.headers.get('content-disposition'))
+
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = name
+    link.click()
+    URL.revokeObjectURL(url)
+
+    emit('exported', name)
+  } catch (e) {
+    emit('failed', `Exportação falhou: ${e.message}`)
+  } finally {
+    busy.value = false
+  }
+}
+
+function fileNameFrom(disposition) {
+  const match = /filename="?([^";]+)"?/.exec(disposition ?? '')
+  return match ? match[1] : 'commonplace-book.zip'
+}
 </script>
 
 <style scoped>
-.import {
+.actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: var(--s2);
 }

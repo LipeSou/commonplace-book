@@ -105,9 +105,9 @@
 
 ## FASE 6 — Exportação
 
-- [ ] ⚡ Endpoint que pega o `content` de cada nota e escreve arquivos `.md` numa pasta
-- [ ] ⚡ Incluir frontmatter (tags, datas) reconstruído no topo de cada arquivo
-- [ ] ⚡ UI: ação "Exportar" discreta (`.btn-text`) na tela
+- [x] ⚡ `GET /api/export`: um `.md` por nota, empacotados num `.zip` — a API roda em container, então quem escolhe a pasta é o app (o zip baixa e você salva onde quiser). Títulos repetidos ganham sufixo `(2)`
+- [x] ⚡ Frontmatter reconstruído no topo (`title`, `created`, `updated`, `tags`) — o `content` continua byte a byte embaixo
+- [x] ⚡ UI: "Exportar" como `.btn-text` ao lado dos importes (o `ImportNotes.vue` virou `FileActions.vue`)
 - [ ] 👤 Validar que os `.md` exportados abrem certo em outro app (Obsidian, etc.)
 
 **Meta:** liberdade total — minhas notas saem pra qualquer lugar quando eu quiser.
