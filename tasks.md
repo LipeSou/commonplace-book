@@ -121,21 +121,25 @@
 > fica em silêncio. O porquê está no `plan.md`; a cara do jornal está no `DESIGN.md`.
 
 **Backend:**
-- [ ] ⚡ Endpoint de timeline: `GET /api/notes/timeline?page=&size=` — notas por `created_at desc`,
+- [x] ⚡ Endpoint de timeline: `GET /api/notes/timeline?page=&size=` — notas por `created_at desc`,
       paginação no padrão do search (`hasMore`); agrupamento por dia é do cliente
-- [ ] ⚡ Endpoint do jornal: `GET /api/journal?date=&zone=` — seções "há uma semana" (−7d),
+- [x] ⚡ Endpoint do jornal: `GET /api/journal?date=&zone=` — seções "há uma semana" (−7d),
       "há um mês" (mesmo dia, mês anterior) e "há N anos" (mesmo dia/mês de cada ano anterior
-      com nota), calculadas em `Instant` com o fuso do cliente; seções vazias ficam de fora
+      com nota), calculadas em `Instant` com o fuso do cliente; seções vazias ficam de fora.
+      Fuso de casa configurável (`commonplace.zone`, env `APP_ZONE`); data/fuso inválidos → 400
 
 **Frontend:**
-- [ ] ⚡ Navegação por views no `App.vue`: ref único `view: 'home' | 'note' | 'graph'`,
-      home como inicial; "início" na sidebar ao lado do grafo
-- [ ] ⚡ `HomeView.vue`: jornal no topo + timeline embaixo; clicar em qualquer nota abre o editor
-- [ ] ⚡ `JournalCard.vue` — o shinbun (spec no `DESIGN.md`): masthead 温故知新 com selo hanko
+- [x] ⚡ Navegação por views no `App.vue`: ref único `view: 'home' | 'note' | 'graph'`,
+      home como inicial; "始 início · 縁 grafo" na sidebar. O casco virou altura fixa
+      (`100vh`) com cada painel rolando por dentro — a janela em si não rola mais
+- [x] ⚡ `HomeView.vue`: jornal no topo + timeline embaixo; clicar em qualquer nota abre o editor
+- [x] ⚡ `JournalCard.vue` — o shinbun (spec no `DESIGN.md`): masthead 温故知新 com selo hanko
       (o único acento da tela), filetes, manchetes em display, colunas quando 2+ lembranças;
       vazio = convite ("Escreva algo que o seu eu de daqui a um ano vai reler.")
-- [ ] ⚡ `Timeline.vue`: cabeçalhos de dia discretos (mono, muted) + `NoteCard` reutilizado +
-      scroll infinito (IntersectionObserver na sentinela)
+- [x] ⚡ `Timeline.vue`: cabeçalhos de dia discretos ("Hoje", "Ontem", depois a data por extenso)
+      + `NoteCard` reutilizado + scroll infinito medindo a sentinela no scroll
+      (o `IntersectionObserver` só avisa na *mudança* de visibilidade — com a sentinela parada
+      à vista ele nunca mais dispara, e ainda não roda no navegador de preview)
 - [ ] 👤 Usar a home por alguns dias: o jornal convida a reler? A timeline dá vontade de scrollar?
       Ajustar até ficar com a minha cara
 

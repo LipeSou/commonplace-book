@@ -45,6 +45,15 @@ export function listTags() {
   return request('http://localhost:8080/api/tags')
 }
 
+export function getTimeline(page = 0, size = 30) {
+  return request(`${BASE}/timeline?page=${page}&size=${size}`)
+}
+
+// o fuso de quem pergunta é que define onde o dia começa
+export function getJournal(zone = Intl.DateTimeFormat().resolvedOptions().timeZone) {
+  return request(`http://localhost:8080/api/journal?zone=${encodeURIComponent(zone)}`)
+}
+
 export function searchNotes(q, page = 0, size = 20) {
   return request(`${BASE}/search?q=${encodeURIComponent(q)}&page=${page}&size=${size}`)
 }

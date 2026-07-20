@@ -10,9 +10,15 @@
 
       <button class="new-note btn-secondary" @click="startNew">Nova nota</button>
 
-      <button class="btn-text graph-toggle" @click="showGraph = !showGraph">
-        {{ showGraph ? 'voltar à nota' : '縁 ver o grafo' }}
-      </button>
+      <nav class="views">
+        <button class="btn-text" :class="{ current: view === 'home' }" @click="showHome">
+          始 início
+        </button>
+        <span class="dot">·</span>
+        <button class="btn-text" :class="{ current: view === 'graph' }" @click="view = 'graph'">
+          縁 grafo
+        </button>
+      </nav>
 
       <SearchField v-model="query" :busy="searching" />
 
@@ -60,13 +66,20 @@
 
     <main class="pane">
       <GraphView
-        v-if="showGraph"
+        v-if="view === 'graph'"
         :nodes="graph.nodes"
         :edges="graph.edges"
         :current-id="selected?.id ?? null"
         @open="openNote"
       />
       <EmptyState v-else-if="showEmpty" @create="startNew" />
+      <HomeView
+        v-else-if="view === 'home'"
+        ref="home"
+        :backlinks="backlinkCounts"
+        @open="openNote"
+        @pick-tag="filterByTag"
+      />
       <NoteEditor
         v-else
         :note="selected"
@@ -96,6 +109,7 @@ import FileActions from './components/FileActions.vue'
 import TagPanel from './components/TagPanel.vue'
 import GraphView from './components/GraphView.vue'
 import SearchField from './components/SearchField.vue'
+import HomeView from './components/HomeView.vue'
 
 const { theme, toggle } = useTheme()
 const themeLabel = computed(() => (theme.value === 'ink' ? 'Trocar para papel' : 'Trocar para tinta'))
@@ -104,7 +118,8 @@ const notes = ref([])
 const tags = ref([])
 const graph = ref({ nodes: [], edges: [] })
 const backlinks = ref([])
-const showGraph = ref(false)
+const view = ref('home')   // 'home' | 'note' | 'graph' — abrir o app é chegar em casa
+const home = ref(null)
 const selected = ref(null)      // null = nada aberto; { id: undefined } = rascunho novo
 const editing = ref(false)
 const loadError = ref('')
@@ -206,12 +221,22 @@ function backlinkCount(id) {
   return Number(graph.value.nodes.find(n => n.id === id)?.backlinks ?? 0)
 }
 
+// as contagens em forma de mapa, para a timeline não varrer a lista a cada cartão
+const backlinkCounts = computed(() =>
+  Object.fromEntries(graph.value.nodes.map(n => [n.id, Number(n.backlinks) || 0]))
+)
+
+function showHome() {
+  view.value = 'home'
+  home.value?.reload()
+}
+
 async function openNote(id) {
   editorError.value = ''
   try {
     selected.value = await getNote(id)
     editing.value = true
-    showGraph.value = false
+    view.value = 'note'
     await loadBacklinks()
   } catch (e) {
     editorError.value = e.message
@@ -247,7 +272,7 @@ function select(note) {
   selected.value = note
   editing.value = true
   editorError.value = ''
-  showGraph.value = false
+  view.value = 'note'
   loadBacklinks()
 }
 
@@ -255,7 +280,7 @@ function startNew() {
   selected.value = null
   editing.value = true
   editorError.value = ''
-  showGraph.value = false
+  view.value = 'note'
   backlinks.value = []
 }
 
@@ -291,9 +316,11 @@ onMounted(reload)
 </script>
 
 <style scoped>
+/* casco fixo: a janela não rola: quem rola são os painéis, cada um por dentro */
 .app {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -304,6 +331,7 @@ onMounted(reload)
   gap: var(--s5);
   padding: var(--s6) var(--s5);
   border-right: 1px solid var(--border);
+  overflow: hidden;
 }
 
 header {
@@ -351,8 +379,16 @@ h1 {
   border-color: var(--text-muted);
 }
 
-.graph-toggle {
-  align-self: flex-start;
+/* as duas telas que não são nota. A atual se distingue só pela tinta cheia:
+   o acento fica reservado pra nota selecionada e pro selo do jornal. */
+.views {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  margin-top: calc(-1 * var(--s3));
+}
+
+.views .btn-text {
   background: none;
   border: none;
   color: var(--text-muted);
@@ -360,12 +396,17 @@ h1 {
   font-size: var(--fs-small);
   cursor: pointer;
   padding: 0;
-  margin-top: calc(-1 * var(--s3));
   transition: color var(--dur-fast) var(--ease-ink);
 }
 
-.graph-toggle:hover {
+.views .btn-text:hover,
+.views .btn-text.current {
   color: var(--text);
+}
+
+.views .dot {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
 }
 
 .error {
@@ -436,7 +477,10 @@ h1 {
   color: var(--text);
 }
 
+/* só a lista rola: busca, tags e ações ficam sempre à mão */
 .cards {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--s3);
@@ -448,21 +492,31 @@ h1 {
   display: flex;
   padding: var(--s7) var(--s8);
   min-width: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 720px) {
+  /* na tela estreita o casco cede: a página inteira volta a rolar */
   .app {
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
 
   .sidebar {
     width: auto;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    overflow: visible;
+  }
+
+  .cards {
+    overflow: visible;
   }
 
   .pane {
     padding: var(--s5);
+    overflow: visible;
   }
 }
 </style>

@@ -1,6 +1,7 @@
 package com.felipe.commonplace.note;
 
 import com.felipe.commonplace.link.LinkService;
+import com.felipe.commonplace.note.dto.NotePage;
 import com.felipe.commonplace.note.dto.NoteRequest;
 import com.felipe.commonplace.note.dto.NoteResponse;
 import com.felipe.commonplace.note.dto.SearchHit;
@@ -45,6 +46,22 @@ public class NoteService {
         return repository.findByTags_NameOrderByUpdatedAtDesc(tag).stream()
                 .map(NoteResponse::from)
                 .toList();
+    }
+
+    /**
+     * A linha do tempo da home: as notas na ordem em que nasceram. Quem agrupa por dia
+     * é a tela — aqui sai a página crua, do mais novo para o mais velho.
+     */
+    @Transactional(readOnly = true)
+    public NotePage timeline(int page, int size) {
+        Page<Note> found = repository.findAllByOrderByCreatedAtDesc(PageRequest.of(page, size));
+        return new NotePage(
+                found.map(NoteResponse::from).toList(),
+                found.getTotalElements(),
+                page,
+                size,
+                found.hasNext()
+        );
     }
 
     @Transactional(readOnly = true)

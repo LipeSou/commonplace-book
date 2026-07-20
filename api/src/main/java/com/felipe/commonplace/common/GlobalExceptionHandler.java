@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.DateTimeException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,6 +19,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleNoteNotFound(NoteNotFoundException ex) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problem.setTitle("Nota não encontrada");
+        problem.setDetail(ex.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(DateTimeException.class)
+    public ProblemDetail handleBadDateOrZone(DateTimeException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Data ou fuso inválido");
         problem.setDetail(ex.getMessage());
         return problem;
     }

@@ -1,6 +1,7 @@
 package com.felipe.commonplace.note;
 
 import com.felipe.commonplace.note.dto.NoteRequest;
+import com.felipe.commonplace.note.dto.NotePage;
 import com.felipe.commonplace.note.dto.NoteResponse;
 import com.felipe.commonplace.note.dto.SearchPage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,6 +53,18 @@ public class NoteController {
             @Parameter(description = "Filtra pelas notas que têm esta tag (sem o `#`)")
             @RequestParam(required = false) String tag) {
         return (tag == null || tag.isBlank()) ? service.findAll() : service.findByTag(tag);
+    }
+
+    @GetMapping("/timeline")
+    @Operation(summary = "A linha do tempo das notas",
+            description = """
+                    As notas na ordem em que nasceram (`created_at`), da mais nova para a mais
+                    velha, paginadas. Quem agrupa por dia é a tela.
+                    """)
+    public NotePage timeline(
+            @Parameter(description = "Página, base zero") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Notas por página (1 a 100)") @RequestParam(defaultValue = "30") int size) {
+        return service.timeline(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
     }
 
     @GetMapping("/search")

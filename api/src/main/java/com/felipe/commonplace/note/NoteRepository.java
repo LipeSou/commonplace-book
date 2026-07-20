@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,27 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findAllByOrderByUpdatedAtDesc();
 
     List<Note> findByTags_NameOrderByUpdatedAtDesc(String name);
+
+    /**
+     * A linha do tempo: as notas na ordem em que nasceram, da mais nova para a mais velha.
+     * É `created_at` (e não `updated_at`) porque a home é um diário de captura — reler uma
+     * nota antiga não a traz de volta para hoje.
+     */
+    Page<Note> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    /**
+     * As notas nascidas dentro de um dia — o intervalo vem em {@code Instant}, já resolvido
+     * no fuso de quem perguntou. Início incluído, fim excluído.
+     */
+    List<Note> findByCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtAsc(
+            Instant from, Instant to);
+
+    /**
+     * Quando nasceu a nota mais antiga — diz até que ano o jornal precisa procurar.
+     * Vazio se ainda não há nota nenhuma.
+     */
+    @Query("select min(n.createdAt) from Note n")
+    Optional<Instant> findOldestCreatedAt();
 
     /**
      * Resolve um {@code [[wikilink]]} pelo título, sem ligar para maiúsculas.

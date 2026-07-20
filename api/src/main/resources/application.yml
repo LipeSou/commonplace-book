@@ -14,3 +14,7 @@ spring:
 
   flyway:
     enabled: true
+
+commonplace:
+  # o fuso de casa — define onde o dia começa quando o cliente não diz de onde pergunta
+  zone: ${APP_ZONE:America/Sao_Paulo}
