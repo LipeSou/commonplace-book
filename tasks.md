@@ -114,6 +114,35 @@
 
 ---
 
+## FASE 7 — Home: timeline por data + jornal de lembranças (温故知新)
+
+> **Decisão (2026-07-20):** a home é a tela inicial. Timeline segue `created_at` (diário de
+> captura — a sidebar já cobre `updated_at`). Lembranças casam o dia exato; dia sem lembrança
+> fica em silêncio. O porquê está no `plan.md`; a cara do jornal está no `DESIGN.md`.
+
+**Backend:**
+- [ ] ⚡ Endpoint de timeline: `GET /api/notes/timeline?page=&size=` — notas por `created_at desc`,
+      paginação no padrão do search (`hasMore`); agrupamento por dia é do cliente
+- [ ] ⚡ Endpoint do jornal: `GET /api/journal?date=&zone=` — seções "há uma semana" (−7d),
+      "há um mês" (mesmo dia, mês anterior) e "há N anos" (mesmo dia/mês de cada ano anterior
+      com nota), calculadas em `Instant` com o fuso do cliente; seções vazias ficam de fora
+
+**Frontend:**
+- [ ] ⚡ Navegação por views no `App.vue`: ref único `view: 'home' | 'note' | 'graph'`,
+      home como inicial; "início" na sidebar ao lado do grafo
+- [ ] ⚡ `HomeView.vue`: jornal no topo + timeline embaixo; clicar em qualquer nota abre o editor
+- [ ] ⚡ `JournalCard.vue` — o shinbun (spec no `DESIGN.md`): masthead 温故知新 com selo hanko
+      (o único acento da tela), filetes, manchetes em display, colunas quando 2+ lembranças;
+      vazio = convite ("Escreva algo que o seu eu de daqui a um ano vai reler.")
+- [ ] ⚡ `Timeline.vue`: cabeçalhos de dia discretos (mono, muted) + `NoteCard` reutilizado +
+      scroll infinito (IntersectionObserver na sentinela)
+- [ ] 👤 Usar a home por alguns dias: o jornal convida a reler? A timeline dá vontade de scrollar?
+      Ajustar até ficar com a minha cara
+
+**Meta:** abrir o app virou ritual — o dia de hoje na frente, o passado voltando na hora certa.
+
+---
+
 ## Backlog (sem ordem; cada um vira fase quando der vontade)
 
 - [ ] Autenticação (Spring Security + JWT) — se eu quiser proteger ou sincronizar

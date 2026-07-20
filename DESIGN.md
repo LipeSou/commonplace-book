@@ -76,6 +76,16 @@ cada regra abaixo tem um porquê funcional.
 - Título em display, meta em mono pequena, excerto em `--text-muted`, selos embaixo, contador de backlinks ("← N notas apontam para esta"). Hover: borda vira `--accent`.
 - **Kintsugi:** nota com muitas edições (ex.: 10+) ganha um fio superior dourado (`border-top: 2px solid var(--gold)`) e a meta "consertada com ouro · N revisões". Kintsugi é reparar com ouro: a nota retrabalhada vale **mais**, não menos. É o único uso permitido do `--gold`.
 
+**Jornal (shinbun) — o card de lembranças da home**
+- Jornal aqui é o japonês (新聞), não o broadsheet: Mincho, filetes finos, monocromia. É tinta
+  sobre papel — não é tema, é o app sendo ele mesmo.
+- Masthead: 温故知新 em `--f-display` + data por extenso em mono pequena + um pequeno selo hanko
+  em `--accent` — **o único acento da home**. O 温故知新 conta como o marcador-kanji único da tela.
+- Corpo: seções ("Há um ano", "Há um mês", "Há uma semana") separadas por filete `--border`
+  (duplo só sob o masthead); manchete = título da nota em display; excerto em `--text-muted`;
+  CSS `columns` quando a seção tem 2+ notas. Fundo `--surface`, sem sombra, cantos `--r-sm`.
+- Vazio é convite, na voz do app. Nada de "não há dados".
+
 **Navegação**
 - Item ativo marcado por **pincelada vermelha à esquerda** (`border-left` em `--accent`), não fundo preenchido. Um traço, não um bloco.
 

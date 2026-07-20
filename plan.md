@@ -83,9 +83,19 @@ As checklists detalhadas estão no `tasks.md`.
 - **FASE 4 — Busca full-text.** `tsvector` + índice GIN no Postgres, derivados do `content`.
 - **FASE 5 — Frontend.** As telas, fiéis ao `DESIGN.md`. Aqui entra minha aprovação de UX.
 - **FASE 6 — Exportação.** A recompensa do content sagrado: exportar `.md` vira trivial.
+- **FASE 7 — Home & jornal de lembranças.** A tela que alimenta o hábito: timeline por data + o passado voltando na hora certa.
 
 > **MVP rápido:** com o CC fazendo tudo, FASE 0–1 + uma tela simples é questão de dias.
 > Lançar simples e enriquecer > fazer tudo perfeito de primeira. O markdown-bruto-sagrado é o que permite isso.
+
+**Decisão (2026-07-20) — a home é um ritual, não um menu.** A FASE 7 nasce do lembrete de que
+o hábito é o desafio real: abrir o app passa a mostrar uma **home** com o jornal de lembranças
+(温故知新, *onkochishin* — "revisitar o velho para conhecer o novo") no topo e uma **timeline por
+`created_at`** embaixo (diário de captura; a sidebar já cobre `updated_at`). As lembranças casam o
+**dia exato** — há 1 semana, mesmo dia do mês passado, mesmo dia/mês de cada ano anterior — e dia
+sem lembrança fica em silêncio, sem janela aproximada. O visual do jornal é shinbun, não broadsheet:
+Mincho, filetes, monocromia e um selo — jornal É tinta sobre papel, o app sendo ele mesmo
+(spec no `DESIGN.md`).
 
 **Decisão (2026-07-04) — frontend acompanha cada fase.** A FASE 5 deixou de ser um bloco no
 fim: a primeira tela (lista + editor + tema) foi antecipada logo após a FASE 1, e daqui em diante
