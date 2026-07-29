@@ -62,6 +62,12 @@ Nunca altere o `content` pra caber em alguma estrutura. Isso mantém a exportaç
 - **Doc do banco:** `docs/DATABASE.md` (diagrama ER em Mermaid + dicionário das tabelas).
 - O `content` das notas é a fonte da verdade no Postgres; nunca mexer nele "por fora".
 
+### Gerar o app instalável (Windows)
+
+- `cd desktop && npm run dist` → instalador em `desktop/release/Commonplace Book Setup <versão>.exe` (electron-builder, NSIS). `npm run icon` regenera o ícone (o ensō) a partir de `build/make-icon.mjs`.
+- **O app empacotado NÃO é autossuficiente:** ele fala com a API em `localhost:8080`. Pra usar: subir o Docker (`start.bat`) **e** abrir o "Commonplace Book". Empacotar o backend junto (dispensar o Docker) é trabalho futuro.
+- As libs de UI (Vue, CodeMirror, fontes) são `devDependencies` de propósito: o Vite as embute no `dist/`, então não entram no pacote — instalador enxuto (~94 MB, quase tudo é o runtime do Electron).
+
 ---
 
 ## Frontend / Design
